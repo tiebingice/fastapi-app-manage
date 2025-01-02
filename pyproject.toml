@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "fastapi-app-manage"
+version = "0.1.0"
+description = "fastapi-app-manage make fastapi dev easy"
+authors = [
+    "tiebingice",
+]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+typer = "^0.15.1"
+questionary = "^2.1.0"
+tomli-w = "^1.1.0"
+requests = "^2.32.3"
+
+
+[tool.poetry.scripts]
+fastapi-app = "fastapi_app_manage.main:app"
+
+[build-system]
+requires = [
+    "poetry-core",
+]
+build-backend = "poetry.core.masonry.api"
