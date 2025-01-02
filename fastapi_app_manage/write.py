@@ -95,17 +95,17 @@ def write_main(cors: bool = False):
         return """
 from fastapi import FastAPI
 from app.core.lifespan import lifespan
-frpm app.router impirt router
+from app.router import router
 from fastapi.middleware.cors import CORSMiddleware
 app=FastAPI(
     lifespan=lifespan
-    )
+)
 
 app.include_router(router)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[*],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -132,7 +132,7 @@ def write_settings(utils: bool = False, db_framework: str = "None"
             return """
 from fastapi_utils.api_settings import APISettings
 class Settings(APISettings):
-     config = SettingsConfigDict(
+     model_config = SettingsConfigDict(
             env_file=".env"
         )
 
@@ -226,7 +226,7 @@ class Settings(BaseSettings):
     db_password: str = "password"
     database: str = "database"
 
-    config = SettingsConfigDict(
+    model_config = SettingsConfigDict(
         env_file=".env"
     )
 
