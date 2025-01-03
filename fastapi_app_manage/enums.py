@@ -13,5 +13,5 @@ class DataBaseFramework(Enum):
 
 
 class Database(Enum):
-    POSTGRES = "Postgres"
+    POSTGRES = "PostgresSQL"
     MYSQL = "MySQL"

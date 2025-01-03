@@ -23,11 +23,12 @@ async def get():
 """
 
 
-def write_service():
+def write_service(name: str):
     return f"""
-class Service:
+from fastapi import Depends, HTTPException
+class {name.title()}Service:
     def __init__(self):
-        print("service")
+        pass
 """
 
 
