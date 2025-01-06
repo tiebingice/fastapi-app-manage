@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 def format_directory_with_black():
-    path = Path.cwd()
+    path = Path("app")
 
     for file_path in path.rglob('*.py'):
         try:
@@ -14,3 +14,15 @@ def format_directory_with_black():
             )
         except Exception as e:
             print(f"使用 Black 格式化 {file_path} 时出错: {e}")
+
+    format_file_in_place(
+        Path("main.py"),
+        fast=False,
+        mode=Mode(),
+    )
+
+    format_file_in_place(
+        Path("settings.py"),
+        fast=False,
+        mode=Mode(),
+    )
