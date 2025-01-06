@@ -7,7 +7,7 @@ import tomli_w
 import pathlib
 import typer
 from fastapi_app_manage.write import write_router, write_schema, write_lifespan, write_main, write_settings, \
-    write_model, write_database, write_service
+    write_model, write_database, write_service, write_router_init_, write_router_init, write_result
 from fastapi_app_manage.get_package_version import get_package_versions
 
 
@@ -20,12 +20,20 @@ def get_package(flag: dict):
         dependencies.append(
             "fastapi-utils"
         )
+        dependencies.append(
+            "typing_inspect"
+        )
+
     if flag.get("db_framework").title() != "None":
         dependencies.append(
             flag.get("db_framework")
         )
         dependencies.append(
             "asyncmy" if flag.get("database") == "MySQL" else "asyncpg"
+        )
+    if flag.get("jinja"):
+        dependencies.append(
+            "jinja2"
         )
 
     try:
@@ -88,10 +96,17 @@ def generate_dir(
             db_engine.write_text(write_database())
 
     (router_path / f"{name}.py").write_text(write_router(name, flag.get("utils")))
-    (service_path / f"{name}.py").write_text(write_service())
+    (router_path / "__init__.py").write_text(write_router_init(name))
+    (service_path / f"{name}.py").write_text(write_service(name))
     (schema_path / f"{name}.py").write_text(write_schema())
     if not (core_path / "lifespan.py").exists():
         (core_path / "lifespan.py").write_text(write_lifespan(""))
+
+    if flag.get("jinja"):
+        (app_path / "templates").mkdir(exist_ok=True)
+
+    if flag.get("standresponse"):
+        (core_path / "result.py").write_text(write_result())
 
     with open("main.py", "w") as f:
         f.write(
@@ -104,17 +119,22 @@ def generate_dir(
 
     with open(".env", "w") as f:
         f.write(
-            """
-#env
+            """# Environment variable record
             """
         )
     versions = get_package(flag)
+    standardfastapi = flag.get("standardfastapi")
     if flag.get("packaging") == "pip":
         writes = []
         for pak, ver in versions.items():
-            writes.append(
-                f"{pak}=={ver}\n"
-            )
+            if pak == "fastapi" and standardfastapi:
+                writes.append(
+                    f"fastapi[standard]=={ver}\n"
+                )
+            else:
+                writes.append(
+                    f"{pak}=={ver}\n"
+                )
         with open("requirements.txt", "w") as f:
             f.write("".join(writes))
         typer.echo(f"success create app {name},please install dependenices with pip installl -r requirements.txt")
@@ -126,7 +146,18 @@ def generate_dir(
             result = tomllib.loads(f.read())
 
         result["tool"]["poetry"]["dependencies"].update({
-            pak: "^" + version for pak, version in versions.items()
+            pak: "^" + version for pak, version in
+            versions.items()
+        })
+
+        if standardfastapi:
+            result["tool"]["poetry"]["dependencies"].update({"fastapi": {'extras': ['standard'],
+                                                                         'version':
+                                                                             result["tool"]["poetry"]["dependencies"][
+                                                                                 "fastapi"]}})
+
+        result["tool"]["poetry"].update({
+            "package-mode": False
         })
         with open("pyproject.toml", "wb") as f:
             tomli_w.dump(result, f)
@@ -148,7 +179,8 @@ def generate_file(
         (model_path / f"{name}.py").write_text(write_model(flag.get("db_framework")))
 
     (router_path / f"{name}.py").write_text(write_router(name, flag.get("utils")))
-    (service_path / f"{name}.py").write_text(write_service())
+    (router_path / "__init__.py").write_text(write_router_init_(name))
+    (service_path / f"{name}.py").write_text(write_service(name))
     (schema_path / f"{name}.py").write_text(write_schema())
 
 
@@ -156,18 +188,29 @@ def startapp(app_name: str):
     try:
         with open("fastapi-app-manage.toml", "r") as f:
             result = tomllib.loads(f.read())
-        generate_file(app_name, result)
+
+        if app_name in result.get("apps"):
+            typer.echo("can not register Repetitive app", err=True)
+        else:
+            generate_file(app_name, result)
+            result["apps"].append(app_name)
+            with open("fastapi-app-manage.toml", "wb") as f:
+                tomli_w.dump(result, f)
 
     except FileNotFoundError:
         result = form(
             packaging=question(PackageManager),
+            standardfastapi=binary_question("fastapi standard"),
             db_framework=question(DataBaseFramework)
         ).ask()
         if result.get("db_framework").title() == "None":
             result.update(
                 form(
                     utils=binary_question("utils"),
-                    cors=binary_question("cors")
+                    cors=binary_question("cors"),
+                    jinja=binary_question("jinja2 template"),
+                    standresponse=binary_question("standard response")
+
                 ).ask()
             )
         else:
@@ -175,9 +218,15 @@ def startapp(app_name: str):
                 form(
                     database=question(Database),
                     utils=binary_question("utils"),
-                    cors=binary_question("cors")
+                    cors=binary_question("cors"),
+                    jinja=binary_question("jinja2 template"),
+                    standresponse=binary_question("standard response")
                 ).ask()
             )
+
+        result.update(
+            {"apps": [app_name]}
+        )
         with open("fastapi-app-manage.toml", "wb") as f:
             tomli_w.dump(result, f)
 

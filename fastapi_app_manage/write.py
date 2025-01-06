@@ -1,3 +1,7 @@
+import pathlib
+import typer
+
+
 def write_router(name: str, is_utils: bool = False):
     if is_utils:
         return f"""
@@ -102,7 +106,6 @@ app=FastAPI(
     lifespan=lifespan
 )
 
-app.include_router(router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -120,9 +123,6 @@ from app.router import router
 app=FastAPI(
     lifespan=lifespan
 )
-
-app.include_router(router)
-
     """
 
 
@@ -132,6 +132,7 @@ def write_settings(utils: bool = False, db_framework: str = "None"
         if db_framework.title() == "None":
             return """
 from fastapi_utils.api_settings import APISettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(APISettings):
      model_config = SettingsConfigDict(
             env_file=".env"
@@ -281,3 +282,50 @@ class Settings(BaseSettings):
 
 settings = Settings()
             """
+
+
+def write_router_init(name: str):
+    return f"""
+from fastapi import APIRouter
+from .{name} import router as {name}_router
+router = APIRouter()
+"""
+
+
+def write_router_init_(name: str):
+    app_path = pathlib.Path("app")
+    router_path = app_path / "router"
+    router_path_init = router_path / "__init__.py"
+    code = router_path_init.read_text()
+    index = code.find("from fastapi import APIRouter")
+    if index != -1:
+        update_index = index + len("from fastapi import APIRouter")
+        update_code = code[:update_index] + f"\nfrom .{name} import router as {name}_router" + code[update_index:]
+        return update_code
+    typer.echo("can not rewrite router __init___.py", err=True)
+    return code
+
+
+def write_result():
+    return """
+from pydantic import BaseModel
+from typing import TypeVar, Generic
+
+T = TypeVar('T')
+
+
+class Result(BaseModel, Generic[T]):
+    code: int = 200
+    msg: str = 'success'
+    data: T = None
+
+    @classmethod
+    def success(cls, code: int = 200, msg: str = "success", data: T = None) -> T:
+        return cls(code=code, msg=msg, data=data)
+
+    @classmethod
+    def failure(cls, code: int = 400, msg: str = "failure", data: T = None) -> T:
+        return cls(code=code, msg=msg, data=data)
+
+
+    """
