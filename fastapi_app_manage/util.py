@@ -3,12 +3,14 @@ from questionary import form
 from fastapi_app_manage.enums import PackageManager, Database, DataBaseFramework
 import questionary
 import tomllib
-import tomli_w
 import pathlib
 import typer
 from fastapi_app_manage.write import write_router, write_schema, write_lifespan, write_main, write_settings, \
-    write_model, write_database, write_service, write_router_init_, write_router_init, write_result
+    write_model, write_database, write_service, write_router_init_, write_router_init, write_result, write_html
 from fastapi_app_manage.get_package_version import get_package_versions
+from .write_dict_2_tom import write_dict_to_toml
+import tomlkit
+from .format import format_directory_with_black
 
 
 def get_package(flag: dict):
@@ -103,7 +105,9 @@ def generate_dir(
         (core_path / "lifespan.py").write_text(write_lifespan(""))
 
     if flag.get("jinja"):
+        temlates = app_path / "templates"
         (app_path / "templates").mkdir(exist_ok=True)
+        (temlates / "index.html").write_text(write_html())
 
     if flag.get("standresponse"):
         (core_path / "result.py").write_text(write_result())
@@ -147,20 +151,21 @@ def generate_dir(
 
         result["tool"]["poetry"]["dependencies"].update({
             pak: "^" + version for pak, version in
-            versions.items()
+            versions.items() if pak != "fastapi" or not standardfastapi
         })
-
         if standardfastapi:
-            result["tool"]["poetry"]["dependencies"].update({"fastapi": {'extras': ['standard'],
-                                                                         'version':
-                                                                             result["tool"]["poetry"]["dependencies"][
-                                                                                 "fastapi"]}})
+            write_dict_to_toml(
+                result["tool"]["poetry"]["dependencies"],
+                True,
+                versions["fastapi"]
+            )
+        else:
+            write_dict_to_toml(
+                result["tool"]["poetry"]["dependencies"],
+            )
 
-        result["tool"]["poetry"].update({
-            "package-mode": False
-        })
-        with open("pyproject.toml", "wb") as f:
-            tomli_w.dump(result, f)
+        format_directory_with_black()
+
         typer.echo(f"success create app {name},please intsall dependencies with poetry install")
 
 
@@ -182,6 +187,7 @@ def generate_file(
     (router_path / "__init__.py").write_text(write_router_init_(name))
     (service_path / f"{name}.py").write_text(write_service(name))
     (schema_path / f"{name}.py").write_text(write_schema())
+    format_directory_with_black()
 
 
 def startapp(app_name: str):
@@ -194,8 +200,8 @@ def startapp(app_name: str):
         else:
             generate_file(app_name, result)
             result["apps"].append(app_name)
-            with open("fastapi-app-manage.toml", "wb") as f:
-                tomli_w.dump(result, f)
+            with open("fastapi-app-manage.toml", "w") as f:
+                f.write(tomlkit.dumps(result))
 
     except FileNotFoundError:
         result = form(
@@ -227,8 +233,8 @@ def startapp(app_name: str):
         result.update(
             {"apps": [app_name]}
         )
-        with open("fastapi-app-manage.toml", "wb") as f:
-            tomli_w.dump(result, f)
+        with open("fastapi-app-manage.toml", "w") as f:
+            f.write(tomlkit.dumps(result))
 
         generate_dir(app_name, result)
 
