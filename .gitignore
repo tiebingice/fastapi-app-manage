@@ -1,3 +1,5 @@
-dist/
+dist
 .venv
 poetry.lock
+examples
+test
