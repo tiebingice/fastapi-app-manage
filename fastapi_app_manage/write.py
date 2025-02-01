@@ -57,11 +57,32 @@ from sqlmodel import Field, SQLModel, create_engine
 
 py_core_db = """
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlmodel import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from settings import settings
- 
-engine = create_async_engine(settings.database_url)
- 
+from fastapi import Depends
+from typing import Annotated
+
+
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=True,
+    pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=20
+)
+
+async_session_maker = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False
+)
+
+async def get_async_session():
+    async with async_session_maker() as session:
+        yield session
+       
+
+AsyncDBSession = Annotated[AsyncSession, Depends(get_async_session)]
  
 """
 
@@ -123,7 +144,7 @@ T = TypeVar('T')
 class Result(BaseModel, Generic[T]):
     code: int = 200
     msg: str = 'success'
-    data: T = None #type: ignore
+    data: T = None #type: ignore[assignment]
 
     @classmethod
     def success(cls, code: int = 200, msg: str = "success", data: T = None) -> Self:

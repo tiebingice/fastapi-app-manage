@@ -4,8 +4,7 @@ from .enums import PackageManager, Database, DataBaseFramework
 import pathlib
 from .write import write_router, write_schema, write_lifespan, write_main, write_settings, \
     write_model, write_database, write_service, write_router_init_, write_router_init, write_result, write_html
-from .utils.get_package_version import get_package_versions
-from .utils.write_dict_2_toml_file import write_dict_to_toml
+from .utils.get_package import get_package
 from .utils.typedict import UserSelectResult
 from .utils.format import format_directory_with_black
 from typing import cast
@@ -15,58 +14,6 @@ import tomlkit
 import questionary
 
 
-def get_package(flag:UserSelectResult)->dict[str,str]:
-    versions = {}
-    dependencies = [
-        "fastapi", "uvicorn", "pydantic_settings"
-    ]
-
-    if flag.get("utils"): #if utils is True,means add fastapi-utils
-        dependencies.append(
-            "fastapi-utils"
-        )
-        dependencies.append(
-            "typing_inspect"
-        )
-
-
-    if flag.get("db_framework").title() != "None": #if db_framework is not None,means add asyncmy or asyncpg
-        dependencies.append(
-            flag.get("db_framework")
-        )
-        dependencies.append(
-            "asyncmy" if flag.get("database") == "MySQL" else "asyncpg"
-        )
-    
-
-    if flag.get("jinja"): #if jinja is True,means add jinja2
-        dependencies.append(
-            "jinja2"
-        )
-
-
-    try:
-        import fastapi
-        versions["fastapi"] = fastapi.__version__
-        dependencies.remove("fastapi") #remove fastapi from dependencies if it is installed
-    except ImportError:
-        pass
-
-    try:
-        import uvicorn
-        versions["uvicorn"] = uvicorn.__version__
-        dependencies.remove("uvicorn") #remove uvicorn from dependencies if it is installed
-    except ImportError:
-        pass
-
-
-    versions = {
-        **versions,
-        **get_package_versions(dependencies)
-    }
-
-
-    return versions
 
 
 def generate_dir(
@@ -145,53 +92,18 @@ def generate_dir(
             """
         )
     
-    versions = get_package(flag)
-
-    standardfastapi = flag.get("standardfastapi") 
+    dependencies = " ".join(get_package(flag))
+    install_command = ""
 
     if flag.get("packaging") == "pip":
-        writes = []
-        for pak, ver in versions.items():
-            if pak == "fastapi" and standardfastapi:
-                writes.append(
-                    f"fastapi[standard]=={ver}\n"
-                )
-            else:
-                writes.append(
-                    f"{pak}=={ver}\n"
-                )
-        
-        with open("requirements.txt", "w") as f:
-            f.write("".join(writes))
-        format_directory_with_black()
-        typer.echo(f"Successfully created app {name}, please install dependencies with pip install -r requirements.txt")
+        install_command=f"pip install {dependencies} "
+    elif flag.get("packaging") == "poetry":
+        install_command=f"poetry add {dependencies}"
+    
 
-    else:
-
-        with open("pyproject.toml", "r") as f:
-            result = tomllib.loads(f.read())
-
-        result["tool"]["poetry"]["dependencies"].update({
-            pak: "^" + version for pak, version in
-            versions.items() if pak != "fastapi" or not standardfastapi
-        })
-
-
-        if standardfastapi:
-            write_dict_to_toml(
-                result["tool"]["poetry"]["dependencies"],
-                True,
-                versions["fastapi"]
-            )
-        else:
-            write_dict_to_toml(
-                result["tool"]["poetry"]["dependencies"],
-            )
-        
-
-        format_directory_with_black()
-
-        typer.echo(f"Successfully created app {name}, please install dependencies with poetry install")
+    typer.echo(f"Successfully created app '{name}'. Important: Please install dependencies using the following command:")
+    typer.echo(f"\n    {install_command}\n",color=True)
+    typer.echo("Ensure all dependencies are installed before running the application.")
 
 
 def generate_file(

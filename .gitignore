@@ -3,3 +3,4 @@ dist
 poetry.lock
 examples
 test
+__pycache__
