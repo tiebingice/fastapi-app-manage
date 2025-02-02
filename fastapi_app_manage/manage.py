@@ -3,7 +3,7 @@ from questionary import form
 from .enums import PackageManager, Database, DataBaseFramework
 import pathlib
 from .write import write_router, write_schema, write_lifespan, write_main, write_settings, \
-    write_model, write_database, write_service, write_router_init_, write_router_init, write_result, write_html
+    write_model, write_database, write_service, write_router_init_, write_router_init, write_result, write_html,write_base_tortoise_model_py
 from .utils.get_package import get_package
 from .utils.typedict import UserSelectResult
 from .utils.format import format_directory_with_black
@@ -60,6 +60,9 @@ def generate_dir(
         if flag.get("db_framework") == "sqlmodel":
             db_engine = core_path / "database.py"
             db_engine.write_text(write_database())
+        
+        if flag.get("db_framework")=="tortoise-orm":
+            (model_path / "base.py").write_text(write_base_tortoise_model_py())
     
 
     (router_path / f"{name}.py").write_text(write_router(name, flag.get("utils"))) 
@@ -119,6 +122,7 @@ def generate_file(
     if not flag.get("db_framework").title() == "None": 
         model_path = app_path / "models"
         (model_path / f"{name}.py").write_text(write_model(flag.get("db_framework")))
+        
 
     (router_path / f"{name}.py").write_text(write_router(name, flag.get("utils"))) 
     code=write_router_init_(name)

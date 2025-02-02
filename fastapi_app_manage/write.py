@@ -173,6 +173,28 @@ index_html = """
 
 """
 
+write_base_tortoise_model_py_code="""
+from tortoise import Model
+from tortoise import fields
+
+class AbstractModel(Model):
+    id = fields.IntField(pk=True)
+    created_at = fields.DatetimeField(auto_now_add=True)
+    updated_at = fields.DatetimeField(auto_now=True)
+
+
+    def __str__(self) -> str:
+        attributes = ', '.join(f"{key}={value}" for key, value in self.__dict__.items() if not key.startswith('_'))
+        return f"{self.__class__.__name__}({attributes})"
+
+    
+    class Meta: # type: ignore[override]
+        abstract = True
+"""
+
+def write_base_tortoise_model_py()->str:
+    return write_base_tortoise_model_py_code
+
 
 def write_html()->str:
     return index_html

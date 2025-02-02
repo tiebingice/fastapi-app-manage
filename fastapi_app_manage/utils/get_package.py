@@ -33,6 +33,9 @@ def get_package(flag:UserSelectResult)->list[str]:
     
     if flag.get("standardfastapi"):
        dependencies[0]="fastapi[standard]"
+       dependencies.append(
+            "orjson"
+       )
    
   
 
