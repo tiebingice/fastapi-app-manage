@@ -3,3 +3,5 @@ dist
 .env
 .env.*
 poetry.lock
+__pycache__
+test.toml
