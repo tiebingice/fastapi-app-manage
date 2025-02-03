@@ -85,14 +85,14 @@ poetry add fastapi_app_manage --group dev
 在创建应用时，您将被问到一系列问题来定制您的项目配置。每个问题都旨在帮助您根据需要设置最佳实践配置。以下是详细的配置项介绍：
 
 ```markdown
-? Select the packagemanager:  pip
+? Select the packagemanager:  poetry
 ? Do you want to add fastapi standard? Yes
-? Select the databaseframework:  tortoise-orm
-? Select the database:  PostgresSQL
+? Select the databaseframework:  none
 ? Do you want to add fastapi-utils? Yes
 ? Do you want to add cors? Yes
 ? Do you want to add jinja2 template? Yes
-? Do you want to add standard response? Yes 
+? Do you want to add standard response? Yes
+? Do you want to add git? Yes
 ```
 
 以下是对其的介绍

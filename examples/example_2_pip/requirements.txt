@@ -1,0 +1,5 @@
+pydantic_settings==2.7.1
+sqlmodel==0.0.22
+uvicorn==0.34.0
+fastapi==0.115.6
+asyncmy==0.2.10

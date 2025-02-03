@@ -1,0 +1,9 @@
+packaging = "pip"
+standardfastapi = true
+db_framework = "tortoise-orm"
+database = "PostgresSQL"
+utils = true
+cors = false
+jinja = false
+standresponse = true
+apps = ["user"]

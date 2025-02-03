@@ -1,6 +1,5 @@
 dist
 .venv
+.env
+.env.*
 poetry.lock
-examples
-test
-__pycache__

@@ -1,0 +1,9 @@
+packaging = "pip"
+standardfastapi = false
+db_framework = "sqlmodel"
+database = "MySQL"
+utils = false
+cors = false
+jinja = false
+standresponse = false
+apps = ["user"]

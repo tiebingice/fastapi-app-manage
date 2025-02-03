@@ -1,0 +1,9 @@
+packaging = "poetry"
+standardfastapi = false
+db_framework = "sqlmodel"
+database = "PostgresSQL"
+utils = true
+cors = true
+jinja = false
+standresponse = false
+apps = ["user"]

@@ -1,0 +1,8 @@
+packaging = "poetry"
+standardfastapi = false
+db_framework = "none"
+utils = true
+cors = false
+jinja = false
+standresponse = true
+apps = ["user"]

@@ -1,0 +1,9 @@
+packaging = "poetry"
+standardfastapi = true
+db_framework = "tortoise-orm"
+database = "MySQL"
+utils = true
+cors = true
+jinja = true
+standresponse = true
+apps = ["user", "tail"]

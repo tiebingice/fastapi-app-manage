@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "example-2-poetry"
+version = "0.1.0"
+description = ""
+authors = ["tiebingice <1206345694@qq.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi-utils = "^0.8.0"
+pydantic_settings = "^2.7.1"
+typing_inspect = "^0.9.0"
+sqlmodel = "^0.0.22"
+uvicorn = "^0.34.0"
+fastapi = "^0.115.6"
+asyncpg = "^0.30.0"
+
+
+[tool.poetry.group.dev.dependencies]
+fastapi-app-manage = "^0.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

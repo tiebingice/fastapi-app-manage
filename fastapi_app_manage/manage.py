@@ -3,7 +3,7 @@ from questionary import form
 from .enums import PackageManager, Database, DataBaseFramework
 import pathlib
 from .write import write_router, write_schema, write_lifespan, write_main, write_settings, \
-    write_model, write_database, write_service, write_router_init_, write_router_init, write_result, write_html,write_base_tortoise_model_py
+    write_model, write_database, write_service, write_router_init_, write_router_init, write_result, write_html,write_base_tortoise_model_py,write_gitignore
 from .utils.get_package import get_package
 from .utils.typedict import UserSelectResult
 from .utils.format import format_directory_with_black
@@ -79,6 +79,12 @@ def generate_dir(
 
     if flag.get("standresponse"):
         (core_path / "result.py").write_text(write_result())
+     
+    if flag.get("git"):
+        with open(".gitignore", "w") as f:
+            f.write(
+                write_gitignore(flag.get("packaging"))
+            )
 
     with open("main.py", "w") as f:
         f.write(
@@ -154,13 +160,14 @@ def startapp(app_name: str):
             db_framework=question(DataBaseFramework)
         ).ask()
 
-        if cast(str, result.get("db_framework")) == "None": 
+        if cast(str, result.get("db_framework")).title() == "None": 
             result.update(
                 form(
                     utils=binary_question("utils"),
                     cors=binary_question("cors"),
                     jinja=binary_question("jinja2 template"),
-                    standresponse=binary_question("standard response")
+                    standresponse=binary_question("standard response"),
+                    git=binary_question("git")
 
                 ).ask()
             )
@@ -171,7 +178,8 @@ def startapp(app_name: str):
                     utils=binary_question("utils"),
                     cors=binary_question("cors"),
                     jinja=binary_question("jinja2 template"),
-                    standresponse=binary_question("standard response")
+                    standresponse=binary_question("standard response"),
+                    git=binary_question("git")
                 ).ask()
             )
 
@@ -193,5 +201,6 @@ def question(choices: type[Enum]) -> questionary.Question:
 def binary_question(option: str) -> questionary.Question:
     if option == "utils":
         option = "fastapi-utils"
+    
     return questionary.confirm(f"Do you want to add {option}?", default=False)
 

@@ -9,5 +9,5 @@ class UserSelectResult(TypedDict):
     jinja:bool
     standresponse:bool
     database:NotRequired[str]
-
+    git:bool
 

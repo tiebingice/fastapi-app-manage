@@ -192,6 +192,19 @@ class AbstractModel(Model):
         abstract = True
 """
 
+write_gitignore_code="""
+.venv
+.env
+.env.*
+fastapi-app-manage.toml
+"""
+
+def write_gitignore(package:str)->str:
+    if package=="poetry":
+        return write_gitignore_code+"poetry.lock"
+    return write_gitignore_code
+
+
 def write_base_tortoise_model_py()->str:
     return write_base_tortoise_model_py_code
 
