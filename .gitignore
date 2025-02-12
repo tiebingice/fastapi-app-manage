@@ -1,8 +1,9 @@
-dist
-.venv
-.env
-.env.*
 poetry.lock
+fastapi-app-manage.toml
+.env.*
+.env
+.venv
+dist
+.vscode
 __pycache__
-test.toml
-test/
+test

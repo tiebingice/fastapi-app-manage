@@ -81,25 +81,17 @@ def generate_dir(
         (core_path / "result.py").write_text(write_result())
      
     if flag.get("git"):
-        with open(".gitignore", "w") as f:
-            f.write(
-                write_gitignore(flag.get("packaging"))
-            )
-
+        write_gitignore(flag.get("packaging"))
+    
+  
     with open("main.py", "w") as f:
-        f.write(
-            write_main(flag.get("cors"), flag.get("standardfastapi")) 
-        )
-    with open("settings.py", "w") as f:
-        f.write(
-            write_settings(flag.get("utils"), flag.get("db_framework")) 
-        )
+        f.write(write_main(flag.get("cors"), flag.get("standardfastapi")))
 
+    with open("settings.py", "w") as f:
+        f.write(write_settings(flag.get("utils"), flag.get("db_framework")))
+    
     with open(".env", "w") as f:
-        f.write(
-            """# Environment variable record
-            """
-        )
+        f.write("# Environment variable record\n")
     
     dependencies = " ".join(get_package(flag))
     install_command = ""
@@ -108,6 +100,8 @@ def generate_dir(
         install_command=f"pip install {dependencies} "
     elif flag.get("packaging") == "poetry":
         install_command=f"poetry add {dependencies}"
+    elif flag.get("packaging") == "uv":
+        install_command=f"uv add {dependencies}"
     
 
     typer.echo(f"Successfully created app '{name}'. Important: Please install dependencies using the following command:")

@@ -105,7 +105,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env"
+        env_file=".env",
+        extra="allow"
     )
     #2
     #1
@@ -119,7 +120,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(APISettings):
     model_config = SettingsConfigDict(
-        env_file=".env"
+        env_file=".env",
+        extra="allow"
     )
     #2
     #1
@@ -192,17 +194,26 @@ class AbstractModel(Model):
         abstract = True
 """
 
-write_gitignore_code="""
-.venv
-.env
-.env.*
-fastapi-app-manage.toml
-"""
+
 
 def write_gitignore(package:str)->str:
-    if package=="poetry":
-        return write_gitignore_code+"poetry.lock"
-    return write_gitignore_code
+    gitignore_set={".venv",".env",".env.*","fastapi-app-manage.toml"}
+    gitignore_path = pathlib.Path('.gitignore')
+    if package == "poetry":
+        gitignore_set.add("poetry.lock")
+    elif package == "uv":
+        gitignore_set.add("uv.lock")
+
+    if gitignore_path.exists():
+        with open(gitignore_path, 'r') as f:
+            existing_content = f.read().splitlines()
+        for line in existing_content:
+            if line.strip():
+                gitignore_set.add(line.strip())
+   
+    gitignore_path.write_text("\n".join(list(gitignore_set)))
+
+    return "gitignore"
 
 
 def write_base_tortoise_model_py()->str:

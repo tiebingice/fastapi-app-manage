@@ -1,6 +1,8 @@
 import typer
 from fastapi_app_manage.manage import startapp
 
+
+
 app = typer.Typer(
     help="FastAPI Project Helpers",
     name="FastAPI APP Manage",
@@ -15,6 +17,7 @@ def start(app_name: str):
 @app.command()
 def st(app_name: str):
     startapp(app_name)
+
 
 
 if __name__ == '__main__':
