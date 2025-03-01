@@ -4,7 +4,7 @@ from enum import Enum
 class PackageManager(Enum):
     PIP = "pip"
     POETRY = "poetry"
-    UV= "uv"
+    UV = "uv"
 
 
 class DataBaseFramework(Enum):
@@ -16,7 +16,3 @@ class DataBaseFramework(Enum):
 class Database(Enum):
     POSTGRES = "PostgreSQL"
     MYSQL = "MySQL"
-
-
-
-
