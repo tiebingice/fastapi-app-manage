@@ -1,10 +1,8 @@
 [tool.poetry]
 name = "fastapi-app-manage"
-version = "4.0.1"
+version = "4.0.2"
 description = "fastapi-app-manage make fastapi dev easy"
-authors = [
-    "tiebingice",
-]
+authors = ["tiebingice"]
 readme = "README.md"
 
 
@@ -17,13 +15,9 @@ tomlkit = "^0.13.2"
 black = "^24.10.0"
 
 
-
-
 [tool.poetry.scripts]
 fastapi-app = "fastapi_app_manage.main:app"
 
 [build-system]
-requires = [
-    "poetry-core",
-]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

@@ -10,7 +10,6 @@ app = typer.Typer(
 
 @app.command()
 def start(app_name: str):
-    # 启动一个新的FastAPI应用，应用名称由app_name参数指定
     startapp(app_name)
 
 
